@@ -30,6 +30,15 @@ class UnderstoodArguments(BaseModel):
     key_points: List[str]
     detected_claims: List[str]
 
+    @model_validator(mode="before")
+    def _unwrap(cls, v: Any) -> Any:
+        """Some LLMs wrap the response inside a top-level key matching the model name.
+        Accept either the raw object or one wrapped under "UnderstoodArguments".
+        """
+        if isinstance(v, dict) and "UnderstoodArguments" in v:
+            return v["UnderstoodArguments"]
+        return v
+
 
 class CounterPoint(BaseModel):
     point: str
